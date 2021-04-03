@@ -1,6 +1,9 @@
 .*
+!.github
 !.gitignore
 __pycache__
 *.egg-info
 venv
 *.tgsk
+dist
+build

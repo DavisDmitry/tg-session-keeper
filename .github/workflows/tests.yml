@@ -26,8 +26,8 @@ jobs:
         pip install tox
     - name: Run tox
       env:
-        API_ID: ${{ secrets.PYPI_USERNAME }}
-        API_HASH: ${{ secrets.PYPI_PASSWORD }}
+        API_ID: ${{ secrets.API_ID }}
+        API_HASH: ${{ secrets.API_HASH }}
         DC_ID: ${{ secrets.DC_ID }}
         DC_ADDRESS: ${{ secrets.DC_ADDRESS }}
         DC_PORT: ${{ secrets.DC_PORT }}

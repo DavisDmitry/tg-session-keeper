@@ -9,7 +9,7 @@ from telethon import TelegramClient
 from telethon.tl.types import Message
 
 from .session import Session
-from .storage import EncryptedJsonStorage
+from .storage.ejs import EncryptedJsonStorage
 
 
 def parse_args() -> Namespace:

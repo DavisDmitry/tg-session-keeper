@@ -2,7 +2,9 @@ import base64 as b64
 import json
 from typing import List, Union
 
-from .session import KeeperSession, Session
+from .abstract import AbstractStorage
+from .exceptions import MismatchedVersionError, StorageSettedError
+from ..session import KeeperSession, Session
 
 
 FILENAME = 'sessions.tgsk'
@@ -11,19 +13,17 @@ PASS_HASH_SALT = b''
 PASS_HASH_ITERATES = 8
 
 
-# TODO: add abstract storage
 # TODO: add exceptions processing
 
 
-class EncryptedJsonStorage:
+class EncryptedJsonStorage(AbstractStorage):
     def __init__(self, password: Union[bytes, str], *,
                  filename: str = FILENAME,
                  version: Union[bytes, int] = CURRENT_VERSION):
+        super().__init__()
         self.filename = filename
         self._version = bytes(version)
         self._set_fernet(password)
-        self._api_id = None
-        self._api_hash = None
         self._sessions = []
 
     @staticmethod
@@ -54,17 +54,9 @@ class EncryptedJsonStorage:
     def api_id(self) -> int:
         return self._api_id
 
-    @api_id.setter
-    def api_id(self, value: int):
-        self._api_id = value
-
     @property
     def api_hash(self) -> str:
         return self._api_hash
-
-    @api_hash.setter
-    def api_hash(self, value: str):
-        self._api_hash = value
 
     async def add_session(self, session: Session) -> None:
         self._sessions.append(session)
@@ -107,8 +99,8 @@ class EncryptedJsonStorage:
     async def setup(self, api_id: int, api_hash: str) -> None:
         if self._api_id and self._api_hash:
             raise StorageSettedError('Storage already has been setted.')
-        self.api_id = api_id
-        self.api_hash = api_hash
+        self._api_id = api_id
+        self._api_hash = api_hash
         await self.save()
 
     async def start(self):
@@ -126,18 +118,5 @@ class EncryptedJsonStorage:
             file.write(self._version + self._encrypt_sessions())
             file.flush()
 
-    async def __aenter__(self):
-        await self.start()
-        return self
-
-    async def __aexit__(self, *args):
+    async def stop(self) -> None:
         await self.save()
-        return self
-
-
-class StorageSettedError(Exception):
-    pass
-
-
-class MismatchedVersionError(Exception):
-    pass

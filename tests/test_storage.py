@@ -4,7 +4,7 @@ from typing import Iterator
 import pytest
 from session_keeper.storage import (EncryptedJsonStorage,
                                     MismatchedVersionError,
-                                    StorageSettedError)
+                                    StorageSettedError, StorageNotFoundError)
 from telethon import TelegramClient
 
 
@@ -40,7 +40,7 @@ def storage_file() -> Iterator[str]:
 
 
 async def test_encrypt_and_decrypt(storage_with_session: EncryptedJsonStorage):
-    filename = storage_with_session.filename
+    filename = storage_with_session._filename
 
     storage1 = storage_with_session
     await storage1.save()
@@ -59,6 +59,14 @@ async def test_remove_session(storage_with_session: EncryptedJsonStorage):
     storage = storage_with_session
     await storage.remove_session(0)
     assert len(storage.sessions) == 0
+
+
+async def test_storage_not_found_error():
+    filename = 'not_file'
+    storage = EncryptedJsonStorage('qwerty', filename=filename)
+    with pytest.raises(StorageNotFoundError) as e:
+        await storage.start()
+    assert str(e.value) == f'File {filename} does not exist.'
 
 
 async def test_storage_setted_error(storage: EncryptedJsonStorage,

@@ -4,10 +4,14 @@ from typing import List
 from ..session import Session
 
 
+__all__ = ('AbstractStorage',)
+
+
 class AbstractStorage(ABC):
     def __init__(self):
         self._api_id = None
         self._api_hash = None
+        self._started = False
 
     @property
     @abstractmethod
@@ -18,6 +22,10 @@ class AbstractStorage(ABC):
     @abstractmethod
     def api_hash(self) -> str:
         pass
+
+    @property
+    def started(self) -> bool:
+        return self._started
 
     @abstractmethod
     async def add_session(self, session: Session) -> None:

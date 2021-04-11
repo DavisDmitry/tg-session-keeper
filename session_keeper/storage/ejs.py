@@ -98,7 +98,12 @@ class EncryptedJsonStorage(AbstractStorage):
         return self._fernet.encrypt(data)
 
     async def _decrypt_sessions(self, data: bytes) -> None:
-        data = self._fernet.decrypt(data)
+        from cryptography.fernet import InvalidToken
+
+        try:
+            data = self._fernet.decrypt(data)
+        except InvalidToken:
+            raise exc.InvalidPassword
         data = b64.urlsafe_b64decode(data)
         await self._from_json(data.decode())
 

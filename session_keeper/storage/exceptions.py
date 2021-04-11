@@ -8,3 +8,7 @@ class StorageSettedError(Exception):
 
 class MismatchedVersionError(Exception):
     pass
+
+
+class InvalidPassword(Exception):
+    pass

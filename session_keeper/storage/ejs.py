@@ -14,10 +14,10 @@ PASS_HASH_SALT = b''
 PASS_HASH_ITERATES = 8
 
 
-# TODO: add exceptions processing
-
-
 class EncryptedJsonStorage(AbstractStorage):
+    """
+    TODO: docs
+    """
     def __init__(self, password: Union[bytes, str], *,
                  filename: str = FILENAME,
                  version: Union[bytes, int] = CURRENT_VERSION):
@@ -97,7 +97,13 @@ class EncryptedJsonStorage(AbstractStorage):
         return self._fernet.encrypt(data)
 
     async def _decrypt_sessions(self, data: bytes) -> None:
-        data = self._fernet.decrypt(data)
+        from cryptography.fernet import InvalidToken
+
+        try:
+            data = self._fernet.decrypt(data)
+        except InvalidToken:
+            raise exc.InvalidPassword
+
         data = b64.urlsafe_b64decode(data)
         await self._from_json(data.decode())
 

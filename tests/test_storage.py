@@ -3,8 +3,8 @@ from typing import Iterator
 
 import pytest
 from session_keeper.storage import (EncryptedJsonStorage,
-                                    MismatchedVersionError,
-                                    StorageSettedError)
+                                    InvalidPassword, MismatchedVersionError,
+                                    StorageNotFound, StorageSettedError)
 from telethon import TelegramClient
 
 
@@ -61,6 +61,12 @@ async def test_remove_session(storage_with_session: EncryptedJsonStorage):
     assert len(storage.sessions) == 0
 
 
+async def test_storage_not_found():
+    storage = EncryptedJsonStorage(PASSWORD, filename='qwerty')
+    with pytest.raises(StorageNotFound):
+        await storage.start()
+
+
 async def test_storage_setted_error(storage: EncryptedJsonStorage,
                                     api_id: int, api_hash: str):
     with pytest.raises(StorageSettedError):
@@ -73,3 +79,10 @@ async def test_mismatched_version_error(storage_file: str):
                                    version=1)
     with pytest.raises(MismatchedVersionError):
         await storage.start()
+
+
+async def test_invalid_password(storage: EncryptedJsonStorage):
+    storage2 = EncryptedJsonStorage('invalid password',
+                                    filename=storage.filename)
+    with pytest.raises(InvalidPassword):
+        await storage2.start()

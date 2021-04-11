@@ -1,3 +1,7 @@
+class StorageNotFound(Exception):
+    pass
+
+
 class StorageSettedError(Exception):
     pass
 

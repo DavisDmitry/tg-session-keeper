@@ -39,7 +39,7 @@ async def client_with_session(
     client = TelegramClient(Session(), api_id, api_hash)
     dc_id, dc_address, dc_port = dc
     client.session.set_dc(dc_id, dc_address, dc_port)
-    auth_code = str(dc_id) * 5
+    auth_code = str(dc_id) * 6
     await client.start(phone=lambda: phone, code_callback=lambda: auth_code)
     yield client
     await client.disconnect()

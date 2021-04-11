@@ -115,7 +115,6 @@ class EncryptedJsonStorage(AbstractStorage):
         await self.save()
 
     async def start(self) -> None:
-        # TODO: invalid password exception
         if not os.path.isfile(self._filename):
             raise exc.StorageNotFoundError(self._filename)
         with open(self._filename, 'rb') as file:

@@ -1,7 +1,7 @@
 from setuptools import setup
 from typing import List, Tuple
 
-# import session_keeper
+from session_keeper import version
 
 
 NAME = 'tg-session-keeper'
@@ -10,7 +10,7 @@ URL = 'https://github.com/DavisDmitry/tg-session-keeper'
 EMAIL = 'dmitrydavis@protonmail.com'
 AUTHOR = 'Dmitry Davis'
 REQUIRES_PYTHON = '>=3.7'
-VERSION = '0.1.0'
+VERSION = version.__version__
 
 
 def parse_long_description() -> Tuple[str, str]:

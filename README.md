@@ -1,7 +1,9 @@
 # Telegram Session Keeper
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tg-session-keeper?logo=python&style=flat-square)](https://python.org)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/tg-session-keeper?style=flat-square)](https://pypi.org/project/tg-session-keeper)
 [![PyPi Package Version](https://img.shields.io/pypi/v/tg-session-keeper?style=flat-square)](https://pypi.org/project/tg-session-keeper)
-[![MIT License](https://img.shields.io/pypi/l/tg-session-keeper?style=flat-square "MIT License")](https://pypi.org/project/tg-session-keeper "MIT License")
-[![Supported python versions](https://img.shields.io/badge/Python-3.7%20%7C%203.8%20%7C%203.9-blue?style=flat-square&logo=python)](https://www.python.org/)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/DavisDmitry/tg-session-keeper/Tests/master?label=tests&style=flat-square)](https://github.com/DavisDmitry/tg-session-keeper/actions/workflows/tests.yml)
+[![GitHub](https://img.shields.io/github/license/DavisDmitry/tg-session-keeper?style=flat-square)](https://github.com/DavisDmitry/tg-session-keeper/raw/master/LICENSE)
 [![Telethon](https://img.shields.io/badge/Telethon-blue?style=flat-square)](https://github.com/LonamiWebs/Telethon)
 
 Консольная утилита для хранения Telegram-сессий.
@@ -14,15 +16,16 @@ pip install tg-session-keeper
 ```
 ### Запуск
 ```
-usage: session-keeper [-h] [--filename FILENAME]
+usage: __main__.py [-h] [--filename FILENAME] [--test]
 
 optional arguments:
   -h, --help           show this help message and exit
   --filename FILENAME  path to a sessions file
+  --test               run keeper on test Telegram server
 ```
 ### Команды
 ```
-add <PHONE>        создать Telegram-сессию
+add                создать Telegram-сессию
 remove <NUMBER>    удалить сессию
 list               список сессий
 get <NUMBER>       посмотреть последнее сообщение от Telegram
@@ -30,6 +33,6 @@ exit               выйти из программы
 ```
 ## Скриншоты
 ### Список сессий
-![Список сессий](https://github.com/DavisDmitry/tg-session-keeper/blob/master/img/sessions.png)
+![Список сессий](https://github.com/DavisDmitry/tg-session-keeper/raw/master/img/sessions.png)
 ### Пример сообщения от Telegram
-![Сообщение от Telegram](https://github.com/DavisDmitry/tg-session-keeper/blob/master/img/message.png)
+![Сообщение от Telegram](https://github.com/DavisDmitry/tg-session-keeper/raw/master/img/message.png)

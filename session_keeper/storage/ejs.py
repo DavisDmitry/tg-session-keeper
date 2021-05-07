@@ -120,6 +120,8 @@ class EncryptedJsonStorage(AbstractStorage):
         with open(self.filename, 'rb') as file:
             data = file.read()
             version, data = data[:1], data[1:]
+            if not data:
+                raise exc.StorageNotFound(f'File {self.filename} is empty.')
             if version != self._version:
                 raise exc.MismatchedVersionError('The version of the file '
                                                  'does not match the version '

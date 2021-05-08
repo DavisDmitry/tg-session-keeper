@@ -51,7 +51,8 @@ class CLIKeeper(BaseKeeper):
 
     @staticmethod
     def _print_non_existent_session() -> None:
-        print('There is no session with this number.')
+        print('There is no session with this number or messages from Telegram '
+              'are missing.')
 
     @classmethod
     def _get_session_number(cls, command: str) -> Optional[int]:

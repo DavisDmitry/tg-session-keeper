@@ -1,8 +1,6 @@
 from setuptools import setup
 from typing import List, Tuple
 
-import session_keeper.version
-
 
 NAME = 'tg-session-keeper'
 DESCRIPTION = 'Консольная утилита для хранения Telegram-сессий.'
@@ -10,7 +8,6 @@ URL = 'https://github.com/DavisDmitry/tg-session-keeper'
 EMAIL = 'dmitrydavis@protonmail.com'
 AUTHOR = 'Dmitry Davis'
 REQUIRES_PYTHON = '>=3.7'
-VERSION = session_keeper.version.__version__
 
 
 def parse_long_description() -> Tuple[str, str]:
@@ -22,6 +19,15 @@ def parse_long_description() -> Tuple[str, str]:
 
 
 LONG_DESCRIPTION, LONG_DESCRIPTION_CONTENT_TYPE = parse_long_description()
+
+
+def parse_version() -> str:
+    with open('session_keeper/version.py') as file:
+        version = file.read().strip('\n')
+        return version.replace('__version__ = ', '').strip('\'')
+
+
+VERSION = parse_version()
 
 
 def parse_requirements() -> List[str]:

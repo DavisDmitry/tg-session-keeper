@@ -2,6 +2,7 @@ from typing import Iterator
 
 import pytest
 from session_keeper import BaseKeeper
+from session_keeper.session import Session
 from telethon import TelegramClient
 
 
@@ -39,6 +40,16 @@ async def keeper(
     await keeper.stop()
 
 
+async def send_code_request_by_another_session(
+        api_id: int, api_hash: str, session: Session
+) -> None:
+    client = TelegramClient(Session(), api_id, api_hash)
+    client.session.set_dc(session.dc_id, session.server_address, session.port)
+    await client.connect()
+    await client.send_code_request(session.phone)
+    await client.disconnect()
+
+
 async def test_properties(keeper: Keeper):
     assert keeper.started is True
     assert keeper.test_mode is TEST_MODE
@@ -54,6 +65,8 @@ async def test_list(keeper: Keeper):
     assert len(await keeper.list()) == 1
 
 
-async def test_get(keeper: Keeper):
+async def test_get(keeper: Keeper, api_id: int, api_hash: str):
+    await send_code_request_by_another_session(api_id, api_hash,
+                                               (await keeper.list())[0])
     msg = await keeper.get(0)
     assert msg

@@ -12,9 +12,6 @@ __all__ = ('BaseKeeper',)
 
 
 class BaseKeeper(ABC):
-    """
-    TODO: docs
-    """
     _storage: AbstractStorage
     _clients: List[TelegramClient]
     _test_mode: bool

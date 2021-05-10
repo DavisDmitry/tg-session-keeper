@@ -15,9 +15,6 @@ PASS_HASH_ITERATES = 8
 
 
 class EncryptedJsonStorage(AbstractStorage):
-    """
-    TODO: docs
-    """
     def __init__(self, password: Union[bytes, str], *,
                  filename: str = FILENAME,
                  version: Union[bytes, int] = CURRENT_VERSION):

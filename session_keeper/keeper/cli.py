@@ -17,9 +17,6 @@ __all__ = ('CLIKeeper',)
 
 
 class CLIKeeper(BaseKeeper):
-    """
-    TODO: docs
-    """
     @staticmethod
     def _answer_password() -> str:
         return getpass.getpass('Please enter a password to access sessions: ')

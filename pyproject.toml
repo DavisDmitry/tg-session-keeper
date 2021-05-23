@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "tg-session-keeper"
+version = "0.1.1"
+description = "Консольная утилита для хранения Telegram-сессий."
+authors = ["Dmitry Davis <dmitrydavis@protonmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/DavisDmitry/tg-session-keeper"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Utilities"
+]
+packages = [
+    { include = "session_keeper" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+cryptography = "^3.4.7"
+tabulate = "^0.8.9"
+Telethon = "^1.21.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+pytest-asyncio = "^0.15.1"
+pytest-cov = "^2.12.0"
+
+[tool.poetry.scripts]
+session-keeper = "session_keeper:CLIKeeper.run"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

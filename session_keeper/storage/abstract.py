@@ -48,7 +48,7 @@ class AbstractStorage(ABC):
     async def stop(self) -> None:
         pass
 
-    async def __aenter__(self) -> 'AbstractStorage':
+    async def __aenter__(self) -> "AbstractStorage":
         await self.start()
         return self
 

@@ -8,16 +8,20 @@ from .abstract import AbstractStorage
 from ..session import KeeperSession, Session
 
 
-FILENAME = 'sessions.tgsk'
-CURRENT_VERSION = b'1'
-PASS_HASH_SALT = b''
+FILENAME = "sessions.tgsk"
+CURRENT_VERSION = b"1"
+PASS_HASH_SALT = b""
 PASS_HASH_ITERATES = 8
 
 
 class EncryptedJsonStorage(AbstractStorage):
-    def __init__(self, password: Union[bytes, str], *,
-                 filename: str = FILENAME,
-                 version: Union[bytes, int] = CURRENT_VERSION):
+    def __init__(
+        self,
+        password: Union[bytes, str],
+        *,
+        filename: str = FILENAME,
+        version: Union[bytes, int] = CURRENT_VERSION,
+    ):
         super().__init__()
         self._filename = filename
         self._version = bytes(version)
@@ -26,7 +30,7 @@ class EncryptedJsonStorage(AbstractStorage):
 
     @staticmethod
     def transform_password(
-            password: str, hash_salt: bytes, hash_iterates: int
+        password: str, hash_salt: bytes, hash_iterates: int
     ) -> bytes:
         password = password.encode()
 
@@ -37,15 +41,17 @@ class EncryptedJsonStorage(AbstractStorage):
         return b64.urlsafe_b64encode(kdf.derive(password))
 
     def _set_fernet(
-            self, password: Union[bytes, str],
-            hash_salt: bytes = PASS_HASH_SALT,
-            hash_iterates: int = PASS_HASH_ITERATES
+        self,
+        password: Union[bytes, str],
+        hash_salt: bytes = PASS_HASH_SALT,
+        hash_iterates: int = PASS_HASH_ITERATES,
     ) -> None:
         from cryptography.fernet import Fernet
 
         if isinstance(password, str):
-            password = self.transform_password(password, hash_salt,
-                                               hash_iterates)
+            password = self.transform_password(
+                password, hash_salt, hash_iterates
+            )
         self._fernet = Fernet(password)
 
     @property
@@ -74,18 +80,20 @@ class EncryptedJsonStorage(AbstractStorage):
         sessions = []
         for session in self.sessions:
             sessions.append(session.as_dict())
-        return {'api_id': self._api_id,
-                'api_hash': self._api_hash,
-                'sessions': sessions}
+        return {
+            "api_id": self._api_id,
+            "api_hash": self._api_hash,
+            "sessions": sessions,
+        }
 
     def _as_json(self) -> str:
         return json.dumps(self._as_dict())
 
     async def _from_json(self, data: str) -> None:
         data = json.loads(data)
-        self._api_id = data['api_id']
-        self._api_hash = data['api_hash']
-        for session in data.get('sessions'):
+        self._api_id = data["api_id"]
+        self._api_hash = data["api_hash"]
+        for session in data.get("sessions"):
             await self.add_session(KeeperSession(**session))
 
     def _encrypt_sessions(self) -> bytes:
@@ -106,27 +114,29 @@ class EncryptedJsonStorage(AbstractStorage):
 
     async def setup(self, api_id: int, api_hash: str) -> None:
         if self._api_id and self._api_hash:
-            raise exc.StorageSettedError('Storage already has been setted.')
+            raise exc.StorageSettedError("Storage already has been setted.")
         self._api_id = api_id
         self._api_hash = api_hash
         await self.save()
 
     async def start(self):
         if not os.path.isfile(self.filename):
-            raise exc.StorageNotFound(f'File {self.filename} does not exist.')
-        with open(self.filename, 'rb') as file:
+            raise exc.StorageNotFound(f"File {self.filename} does not exist.")
+        with open(self.filename, "rb") as file:
             data = file.read()
             version, data = data[:1], data[1:]
             if not data:
-                raise exc.StorageNotFound(f'File {self.filename} is empty.')
+                raise exc.StorageNotFound(f"File {self.filename} is empty.")
             if version != self._version:
-                raise exc.MismatchedVersionError('The version of the file '
-                                                 'does not match the version '
-                                                 'of the storage.')
+                raise exc.MismatchedVersionError(
+                    "The version of the file "
+                    "does not match the version "
+                    "of the storage."
+                )
             await self._decrypt_sessions(data)
 
     async def save(self) -> None:
-        with open(self.filename, 'wb') as file:
+        with open(self.filename, "wb") as file:
             file.write(self._version + self._encrypt_sessions())
             file.flush()
 

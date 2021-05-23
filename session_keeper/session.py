@@ -14,12 +14,12 @@ class Session(MemorySession):
 
     @property
     def phone(self) -> str:
-        return '+' + self.entities[3]
+        return "+" + self.entities[3]
 
     @property
     def mention(self) -> str:
         if self.entities[2]:
-            return '@' + self.entities[2]
+            return "@" + self.entities[2]
         return self.entities[4]
 
     def _encode_auth_key(self) -> str:
@@ -28,9 +28,15 @@ class Session(MemorySession):
         return key.decode()
 
     def as_dict(self) -> dict:
-        return {'id': self.id, 'phone': self.phone, 'mention': self.mention,
-                'dc_id': self.dc_id, 'server_address': self.server_address,
-                'port': self.port, 'auth_key': self._encode_auth_key()}
+        return {
+            "id": self.id,
+            "phone": self.phone,
+            "mention": self.mention,
+            "dc_id": self.dc_id,
+            "server_address": self.server_address,
+            "port": self.port,
+            "auth_key": self._encode_auth_key(),
+        }
 
 
 class KeeperSession(Session):
@@ -40,8 +46,8 @@ class KeeperSession(Session):
         super().__init__()
 
         self._dc_id, self._server_address, self._port, auth_key = [
-            kwargs.get(key) for key in ('dc_id', 'server_address', 'port',
-                                        'auth_key')
+            kwargs.get(key)
+            for key in ("dc_id", "server_address", "port", "auth_key")
         ]
         self._auth_key = AuthKey(self._decode_auth_key(auth_key))
 

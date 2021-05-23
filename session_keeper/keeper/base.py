@@ -8,7 +8,7 @@ from ..session import Session
 from ..storage import AbstractStorage, EncryptedJsonStorage, StorageNotFound
 
 
-__all__ = ('BaseKeeper',)
+__all__ = ("BaseKeeper",)
 
 
 class BaseKeeper(ABC):
@@ -50,14 +50,16 @@ class BaseKeeper(ABC):
         pass
 
     async def start(
-            self, password: str, *,
-            test_mode: bool = False,
-            filename: Optional[str] = None
+        self,
+        password: str,
+        *,
+        test_mode: bool = False,
+        filename: Optional[str] = None,
     ) -> None:
         self._test_mode = test_mode
-        kwargs = {'password': password}
+        kwargs = {"password": password}
         if filename:
-            kwargs.update({'filename': filename})
+            kwargs.update({"filename": filename})
         storage = None
         while not storage:
             self._storage = storage = EncryptedJsonStorage(**kwargs)

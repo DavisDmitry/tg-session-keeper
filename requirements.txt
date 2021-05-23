@@ -1,3 +1,0 @@
-cryptography>=3.4.7
-tabulate>=0.8.9
-telethon>=1.21.1

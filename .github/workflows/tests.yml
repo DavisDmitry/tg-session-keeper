@@ -17,16 +17,19 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.7'
-    - name: Install tox
+    - name: Install poetry
       run: |
         python -m pip install --upgrade pip
-        pip install tox
-    - name: Run tox
+        pip install poetry
+    - name: Install project requirements
+      run: poetry install
+    - name: Run linters
+      run: flake8 session_keeper tests
+    - name: Run tests
       env:
         API_ID: ${{ secrets.API_ID }}
         API_HASH: ${{ secrets.API_HASH }}
         DC_ID: ${{ secrets.DC_ID }}
         DC_ADDRESS: ${{ secrets.DC_ADDRESS }}
         DC_PORT: ${{ secrets.DC_PORT }}
-      run: |
-        tox
+      run: pytest --cov=session_keeper --cov-report=term-missing

@@ -1,5 +1,5 @@
-from .keeper import CLIKeeper
+from .cli import main
 
 
 if __name__ == '__main__':
-    CLIKeeper.run()
+    main()

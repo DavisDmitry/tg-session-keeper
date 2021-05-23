@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tg-session-keeper"
-version = "0.1.1"
+version = "0.1.2"
 description = "Консольная утилита для хранения Telegram-сессий."
 authors = ["Dmitry Davis <dmitrydavis@protonmail.com>"]
 license = "MIT"

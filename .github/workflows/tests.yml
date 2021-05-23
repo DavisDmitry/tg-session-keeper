@@ -24,7 +24,7 @@ jobs:
     - name: Install project requirements
       run: poetry install
     - name: Run linters
-      run: flake8 session_keeper tests
+      run: poetry run flake8 session_keeper tests
     - name: Run tests
       env:
         API_ID: ${{ secrets.API_ID }}
@@ -32,4 +32,4 @@ jobs:
         DC_ID: ${{ secrets.DC_ID }}
         DC_ADDRESS: ${{ secrets.DC_ADDRESS }}
         DC_PORT: ${{ secrets.DC_PORT }}
-      run: pytest --cov=session_keeper --cov-report=term-missing
+      run: poetry run pytest --cov=session_keeper --cov-report=term-missing

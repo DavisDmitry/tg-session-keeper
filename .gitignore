@@ -1,6 +1,7 @@
 .*
 !.github
 !.gitignore
+!.flake8
 __pycache__
 *.egg-info
 venv

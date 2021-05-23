@@ -6,7 +6,7 @@ from session_keeper.session import Session
 from telethon import TelegramClient
 
 
-PASSWORD = 'qwerty'
+PASSWORD = "qwerty"
 TEST_MODE = True
 
 
@@ -27,8 +27,10 @@ class Keeper(BaseKeeper):
 
 @pytest.fixture
 async def keeper(
-        api_id: str, api_hash: str, temp_file: str,
-        client_with_session: TelegramClient
+    api_id: str,
+    api_hash: str,
+    temp_file: str,
+    client_with_session: TelegramClient,
 ) -> Iterator[Keeper]:
     keeper = Keeper()
     keeper.api_id = api_id
@@ -41,7 +43,7 @@ async def keeper(
 
 
 async def send_code_request_by_another_session(
-        api_id: int, api_hash: str, session: Session
+    api_id: int, api_hash: str, session: Session
 ) -> None:
     client = TelegramClient(Session(), api_id, api_hash)
     client.session.set_dc(session.dc_id, session.server_address, session.port)
@@ -66,7 +68,8 @@ async def test_list(keeper: Keeper):
 
 
 async def test_get(keeper: Keeper, api_id: int, api_hash: str):
-    await send_code_request_by_another_session(api_id, api_hash,
-                                               (await keeper.list())[0])
+    await send_code_request_by_another_session(
+        api_id, api_hash, (await keeper.list())[0]
+    )
     msg = await keeper.get(0)
     assert msg

@@ -23,8 +23,10 @@ jobs:
         pip install poetry
     - name: Install project requirements
       run: poetry install
-    - name: Run linters
-      run: poetry run flake8 session_keeper tests
+    - name: Run black
+      run: poetry run black --check --diff .
+    - name: Run isort
+      run: poetry run isort --check --diff .
     - name: Run tests
       env:
         API_ID: ${{ secrets.API_ID }}

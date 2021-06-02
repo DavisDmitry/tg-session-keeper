@@ -4,8 +4,9 @@ from tempfile import NamedTemporaryFile
 from typing import Iterator, Tuple
 
 import pytest
-from session_keeper.session import Session
 from telethon import TelegramClient
+
+from session_keeper.session import Session
 
 
 @pytest.fixture

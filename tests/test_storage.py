@@ -2,6 +2,8 @@ from tempfile import NamedTemporaryFile
 from typing import Iterator
 
 import pytest
+from telethon import TelegramClient
+
 from session_keeper.storage import (
     EncryptedJsonStorage,
     InvalidPassword,
@@ -9,8 +11,6 @@ from session_keeper.storage import (
     StorageNotFound,
     StorageSettedError,
 )
-from telethon import TelegramClient
-
 
 PASSWORD = "qwerty"
 

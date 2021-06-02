@@ -7,7 +7,6 @@ from .exceptions import (
     StorageSettedError,
 )
 
-
 __all__ = (
     "AbstractStorage",
     "EncryptedJsonStorage",

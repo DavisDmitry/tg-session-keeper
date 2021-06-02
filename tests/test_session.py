@@ -1,5 +1,6 @@
-from session_keeper.session import KeeperSession, Session
 from telethon import TelegramClient
+
+from session_keeper.session import KeeperSession, Session
 
 
 def test_session_as_dict(client_with_session: TelegramClient):

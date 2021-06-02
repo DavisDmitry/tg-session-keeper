@@ -1,10 +1,10 @@
 from typing import Iterator
 
 import pytest
-from session_keeper import BaseKeeper
-from session_keeper.session import Session
 from telethon import TelegramClient
 
+from session_keeper import BaseKeeper
+from session_keeper.session import Session
 
 PASSWORD = "qwerty"
 TEST_MODE = True

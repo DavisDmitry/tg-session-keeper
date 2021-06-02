@@ -7,11 +7,10 @@ from typing import Optional
 from tabulate import tabulate
 from telethon import TelegramClient
 
-from .base import BaseKeeper
 from ..session import Session
 from ..storage import InvalidPassword, MismatchedVersionError
 from ..version import __version__ as keeper_version
-
+from .base import BaseKeeper
 
 __all__ = ("CLIKeeper",)
 

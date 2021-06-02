@@ -3,10 +3,9 @@ import json
 import os
 from typing import List, Union
 
+from ..session import KeeperSession, Session
 from . import exceptions as exc
 from .abstract import AbstractStorage
-from ..session import KeeperSession, Session
-
 
 FILENAME = "sessions.tgsk"
 CURRENT_VERSION = b"1"

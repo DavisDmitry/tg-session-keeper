@@ -5,7 +5,6 @@
 __pycache__
 *.egg-info
 venv
-*.lock
 *.tgsk
 dist
 build

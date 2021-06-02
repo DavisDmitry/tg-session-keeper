@@ -1,3 +1,0 @@
-[flake8]
-max-line-height = 79
-import-order-style = smarkets

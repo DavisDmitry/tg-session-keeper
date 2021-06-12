@@ -3,7 +3,7 @@ from typing import Iterator
 import pytest
 from telethon import TelegramClient
 
-from session_keeper import BaseKeeper
+from session_keeper import Keeper
 from session_keeper.session import Session
 
 PASSWORD = "qwerty"
@@ -13,7 +13,7 @@ TEST_MODE = True
 pytestmark = pytest.mark.asyncio
 
 
-class Keeper(BaseKeeper):
+class Keeper(Keeper):
     async def add(self):
         pass
 

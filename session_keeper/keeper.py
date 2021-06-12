@@ -1,14 +1,13 @@
-from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from telethon import TelegramClient
 from telethon.tl.types import Message
 
-from ..session import Session
-from ..storage import AbstractStorage, EncryptedJsonStorage, StorageNotFound
+from .session import Session
+from .storage import AbstractStorage, EncryptedJsonStorage, StorageNotFound
 
 
-class BaseKeeper(ABC):
+class Keeper:
     _storage: AbstractStorage
     _clients: List[TelegramClient]
     _test_mode: bool
@@ -26,7 +25,6 @@ class BaseKeeper(ABC):
         return self._test_mode
 
     # TODO: implement this method with custom login instead telethon start
-    @abstractmethod
     async def add(self) -> None:
         pass
 
@@ -42,10 +40,6 @@ class BaseKeeper(ABC):
         client = self._clients[number]
         return (await client.get_messages(777000))[0]
 
-    @abstractmethod
-    async def setup_storage(self) -> None:
-        pass
-
     async def start(
         self,
         password: str,
@@ -53,6 +47,7 @@ class BaseKeeper(ABC):
         test_mode: bool = False,
         filename: Optional[str] = None,
     ) -> None:
+        # TODO: move params parsing to init
         self._test_mode = test_mode
         kwargs = {"password": password}
         if filename:
@@ -79,8 +74,3 @@ class BaseKeeper(ABC):
             await client.disconnect()
         await self._storage.stop()
         self._started = False
-
-    @classmethod
-    @abstractmethod
-    def run(cls) -> None:
-        pass

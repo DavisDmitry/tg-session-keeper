@@ -1,12 +1,13 @@
 import asyncio
 import getpass
-from session_keeper.storage import StorageNotFound
 import sys
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 
 from tabulate import tabulate
 from telethon import TelegramClient
+
+from session_keeper.storage import StorageNotFound
 
 from .keeper import Keeper
 from .session import Session

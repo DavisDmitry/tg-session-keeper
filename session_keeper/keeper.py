@@ -1,18 +1,20 @@
-from typing import List, Optional
+from typing import List
 
 from telethon import TelegramClient
 from telethon.tl.types import Message
 
 from .session import Session
-from .storage import AbstractStorage, EncryptedJsonStorage, StorageNotFound
+from .storage import AbstractStorage, EncryptedJsonStorage
 
 
 class Keeper:
-    _storage: AbstractStorage
     _clients: List[TelegramClient]
-    _test_mode: bool
 
-    def __init__(self):
+    def __init__(
+        self, password: str, *, filename: str = "sessions.tgsk", test_mode: bool = False
+    ):
+        self._storage = EncryptedJsonStorage(password, filename=filename)
+        self._test_mode = test_mode
         self._clients = []
         self._started = False
 
@@ -40,33 +42,19 @@ class Keeper:
         client = self._clients[number]
         return (await client.get_messages(777000))[0]
 
-    async def start(
-        self,
-        password: str,
-        *,
-        test_mode: bool = False,
-        filename: Optional[str] = None,
-    ) -> None:
-        # TODO: move params parsing to init
-        self._test_mode = test_mode
-        kwargs = {"password": password}
-        if filename:
-            kwargs.update({"filename": filename})
-        storage = None
-        while not storage:
-            self._storage = storage = EncryptedJsonStorage(**kwargs)
-            try:
-                await storage.start()
-            except StorageNotFound:
-                await self.setup_storage()
-                storage = None
+    async def setup_storage(self, api_id: int, api_hash: str) -> None:
+        await self._storage.setup(api_id, api_hash)
+
+    async def start(self) -> None:
+        storage = self._storage
+
+        await storage.start()
 
         for session in storage.sessions:
             client = TelegramClient(session, storage.api_id, storage.api_hash)
             await client.start()
             self._clients.append(client)
 
-        self._storage = storage
         self._started = True
 
     async def stop(self) -> None:

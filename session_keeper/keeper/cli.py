@@ -156,9 +156,7 @@ class CLIKeeper(BaseKeeper):
     async def start(self) -> None:
         args = self._parse_args()
         password = self._answer_password()
-        await super().start(
-            password, test_mode=args.test, filename=args.filename
-        )
+        await super().start(password, test_mode=args.test, filename=args.filename)
 
     async def process_command(self) -> None:
         command = input("> ")

@@ -48,9 +48,7 @@ class EncryptedJsonStorage(AbstractStorage):
         from cryptography.fernet import Fernet
 
         if isinstance(password, str):
-            password = self.transform_password(
-                password, hash_salt, hash_iterates
-            )
+            password = self.transform_password(password, hash_salt, hash_iterates)
         self._fernet = Fernet(password)
 
     @property

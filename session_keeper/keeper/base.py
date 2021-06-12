@@ -7,8 +7,6 @@ from telethon.tl.types import Message
 from ..session import Session
 from ..storage import AbstractStorage, EncryptedJsonStorage, StorageNotFound
 
-__all__ = ("BaseKeeper",)
-
 
 class BaseKeeper(ABC):
     _storage: AbstractStorage

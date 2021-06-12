@@ -12,8 +12,6 @@ from ..storage import InvalidPassword, MismatchedVersionError
 from ..version import __version__ as keeper_version
 from .base import BaseKeeper
 
-__all__ = ("CLIKeeper",)
-
 
 class CLIKeeper(BaseKeeper):
     @staticmethod

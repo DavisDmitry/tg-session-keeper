@@ -13,18 +13,6 @@ TEST_MODE = True
 pytestmark = pytest.mark.asyncio
 
 
-class Keeper(Keeper):
-    async def add(self):
-        pass
-
-    async def setup_storage(self) -> None:
-        await self._storage.setup(self.api_id, self.api_hash)
-
-    @classmethod
-    def run(cls) -> None:
-        pass
-
-
 @pytest.fixture
 async def keeper(
     api_id: str,
@@ -32,10 +20,9 @@ async def keeper(
     temp_file: str,
     client_with_session: TelegramClient,
 ) -> Iterator[Keeper]:
-    keeper = Keeper()
-    keeper.api_id = api_id
-    keeper.api_hash = api_hash
-    await keeper.start(PASSWORD, test_mode=TEST_MODE, filename=temp_file)
+    keeper = Keeper(PASSWORD, filename=temp_file, test_mode=TEST_MODE)
+    await keeper.setup_storage(api_id, api_hash)
+    await keeper.start()
     await keeper._storage.add_session(client_with_session.session)
     keeper._clients.append(client_with_session)
     yield keeper

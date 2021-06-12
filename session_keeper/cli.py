@@ -1,5 +1,6 @@
 import asyncio
 import getpass
+from session_keeper.storage import StorageNotFound
 import sys
 from argparse import ArgumentParser, Namespace
 from typing import Optional
@@ -13,30 +14,37 @@ from .storage import InvalidPassword, MismatchedVersionError
 from .version import __version__ as keeper_version
 
 
-class CLIApp(Keeper):
-    """
-    TODO: Remove dependence on Keeper
-    """
+def _parse_args() -> Namespace:
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--filename",
+        type=Optional[str],
+        required=False,
+        help="path to a sessions file",
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="run keeper on test Telegram server",
+    )
+    return parser.parse_args()
 
-    @staticmethod
-    def _answer_password() -> str:
-        return getpass.getpass("Please enter a password to access sessions: ")
 
-    @staticmethod
-    def _parse_args() -> Namespace:
-        parser = ArgumentParser()
-        parser.add_argument(
-            "--filename",
-            type=Optional[str],
-            required=False,
-            help="path to a sessions file",
-        )
-        parser.add_argument(
-            "--test",
-            action="store_true",
-            help="run keeper on test Telegram server",
-        )
-        return parser.parse_args()
+def _answer_password() -> str:
+    return getpass.getpass("Please enter a password to access sessions: ")
+
+
+def run() -> None:
+    args = _parse_args()
+    app = CLIApp(_answer_password(), filename=args.filename, test_mode=args.test)
+    asyncio.run(app.run())
+
+
+class CLIApp:
+    def __init__(
+        self, password: str, *, filename: str = "session.tgsk", test_mode: bool = False
+    ):
+        self._keeper = Keeper(password, filename=filename, test_mode=test_mode)
 
     @staticmethod
     def _print_help() -> None:
@@ -52,15 +60,18 @@ class CLIApp(Keeper):
     @staticmethod
     def _print_incorrect_command() -> None:
         print(
-            "You entered the command incorrectly. Enter help to find out "
-            "the correct option."
+            "You entered the command incorrectly. Enter help to find out the correct "
+            "option."
         )
 
     @staticmethod
     def _print_non_existent_session() -> None:
+        """
+        TODO: Reraise IndexError with this message in Keeper
+        """
         print(
-            "There is no session with this number or messages from Telegram "
-            "are missing."
+            "There is no session with this number or messages from Telegram are "
+            "missing."
         )
 
     @classmethod
@@ -76,8 +87,8 @@ class CLIApp(Keeper):
         while True:
             if number is None:
                 number = input(
-                    "Please enter the session number (you can see "
-                    "it by the list command): "
+                    "Please enter the session number (you can see it by the list "
+                    "command): "
                 )
             try:
                 return int(number)
@@ -104,7 +115,7 @@ class CLIApp(Keeper):
         if number is None:
             return
         try:
-            await super().remove(number)
+            await self._keeper.remove(number)
         except IndexError:
             self._print_non_existent_session()
             return
@@ -113,7 +124,7 @@ class CLIApp(Keeper):
     async def list(self) -> None:
         table = [
             (number, session.id, session.phone, session.mention)
-            for number, session in enumerate(await super().list())
+            for number, session in enumerate(await self._keeper.list())
         ]
         print(
             tabulate(
@@ -129,7 +140,7 @@ class CLIApp(Keeper):
             return
 
         try:
-            message = await super().get(number)
+            message = await self._keeper.get(number)
         except IndexError:
             self._print_non_existent_session()
             return
@@ -153,12 +164,7 @@ class CLIApp(Keeper):
             except ValueError:
                 print("You entered an invalid value.")
         api_hash = getpass.getpass("Please enter api hash: ")
-        await self._storage.setup(api_id, api_hash)
-
-    async def start(self) -> None:
-        args = self._parse_args()
-        password = self._answer_password()
-        await super().start(password, test_mode=args.test, filename=args.filename)
+        await self._keeper.setup_storage(api_id, api_hash)
 
     async def process_command(self) -> None:
         command = input("> ")
@@ -183,14 +189,14 @@ class CLIApp(Keeper):
 
         print("Incorrect command. Enter help to see the list of commands.")
 
-    async def _run(self) -> None:
+    async def run(self) -> None:
         try:
-            await self.start()
-        except MismatchedVersionError as e:
+            await self._keeper.start()
+        except StorageNotFound:
+            await self.setup_storage()
+        except (InvalidPassword, MismatchedVersionError) as e:
             print(e)
             return
-        except InvalidPassword:
-            print("Invalid password")
 
         self._print_help()
 
@@ -202,10 +208,6 @@ class CLIApp(Keeper):
         except Exception as e:
             print(e)
 
-    @classmethod
-    def run(cls) -> None:
-        asyncio.run(cls()._run())
-
 
 if __name__ == "__main__":
-    CLIApp.run()
+    run()

@@ -1,14 +1,16 @@
-from typing import List
+from typing import List, Optional, Union
 
 from telethon import TelegramClient
 from telethon.tl.types import Message
 
 from .session import Session
-from .storage import AbstractStorage, EncryptedJsonStorage
+from .storage import EncryptedJsonStorage
+from .version import __version__ as keeper_version
 
 
 class Keeper:
     _clients: List[TelegramClient]
+    _client_for_login: Optional[TelegramClient]
 
     def __init__(
         self, password: str, *, filename: str = "sessions.tgsk", test_mode: bool = False
@@ -17,6 +19,7 @@ class Keeper:
         self._test_mode = test_mode
         self._clients = []
         self._started = False
+        self._client_for_login = None
 
     @property
     def started(self) -> bool:
@@ -26,9 +29,32 @@ class Keeper:
     def test_mode(self) -> bool:
         return self._test_mode
 
-    # TODO: implement this method with custom login instead telethon start
-    async def add(self) -> None:
-        pass
+    async def add(self, phone: str) -> None:
+        """
+        TODO: tests
+        """
+        self._client_for_login = client = TelegramClient(
+            Session(),
+            self._storage.api_id,
+            self._storage.api_hash,
+            app_version=f"Session Keeper {keeper_version}",
+        )
+        if self.test_mode:
+            client.session.set_dc(2, "149.154.167.40", 443)
+        await client.connect()
+        await client.get_me()
+        await client.send_code_request(phone)
+
+    async def login_add_code_and_password(
+        self, code: Union[str, int], password: Optional[str] = None
+    ) -> None:
+        """
+        TODO: tests
+        """
+        await self._client_for_login.sign_in(code=code, password=password)
+        await self._storage.add_session(self._client_for_login.session)
+        self._clients.append(self._client_for_login)
+        self._client_for_login = None
 
     async def remove(self, number: int) -> None:
         client = self._clients.pop(number)
@@ -52,12 +78,15 @@ class Keeper:
 
         for session in storage.sessions:
             client = TelegramClient(session, storage.api_id, storage.api_hash)
-            await client.start()
+            await client.connect()
+            await client.get_me()
             self._clients.append(client)
 
         self._started = True
 
     async def stop(self) -> None:
+        if self._client_for_login:
+            await self._client_for_login.disconnect()
         for client in self._clients:
             await client.disconnect()
         await self._storage.stop()

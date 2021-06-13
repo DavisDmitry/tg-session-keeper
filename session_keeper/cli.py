@@ -65,16 +65,6 @@ class CLIApp:
             "option."
         )
 
-    @staticmethod
-    def _print_non_existent_session() -> None:
-        """
-        TODO: Reraise IndexError with this message in Keeper
-        """
-        print(
-            "There is no session with this number or messages from Telegram are "
-            "missing."
-        )
-
     @classmethod
     def _get_session_number(cls, command: str) -> Optional[int]:
         number = None
@@ -117,8 +107,8 @@ class CLIApp:
             return
         try:
             await self._keeper.remove(number)
-        except IndexError:
-            self._print_non_existent_session()
+        except IndexError as e:
+            print(e)
             return
         print("Session removed from storage.")
 
@@ -142,8 +132,8 @@ class CLIApp:
 
         try:
             message = await self._keeper.get(number)
-        except IndexError:
-            self._print_non_existent_session()
+        except IndexError as e:
+            print(e)
             return
         print(
             tabulate(

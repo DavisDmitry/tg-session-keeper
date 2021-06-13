@@ -7,6 +7,9 @@ from .session import Session
 from .storage import EncryptedJsonStorage
 from .version import __version__ as keeper_version
 
+INDEX_ERROR_NON_EXISTENT_SESSION = IndexError("There is no session with this number.")
+INDEX_ERROR_MISSING_MESSAGES = IndexError("Messages from Telegram are missing.")
+
 
 class Keeper:
     _clients: List[TelegramClient]
@@ -51,7 +54,10 @@ class Keeper:
         self._client_for_login = None
 
     async def remove(self, number: int) -> None:
-        client = self._clients.pop(number)
+        try:
+            client = self._clients.pop(number)
+        except IndexError:
+            raise INDEX_ERROR_NON_EXISTENT_SESSION
         await self._storage.remove_session(number)
         await client.log_out()
 
@@ -59,8 +65,14 @@ class Keeper:
         return self._storage.sessions
 
     async def get(self, number: int) -> Message:
-        client = self._clients[number]
-        return (await client.get_messages(777000))[0]
+        try:
+            client = self._clients[number]
+        except IndexError:
+            raise INDEX_ERROR_NON_EXISTENT_SESSION
+        try:
+            return (await client.get_messages(777000))[0]
+        except IndexError:
+            raise INDEX_ERROR_MISSING_MESSAGES
 
     async def setup_storage(self, api_id: int, api_hash: str) -> None:
         await self._storage.setup(api_id, api_hash)

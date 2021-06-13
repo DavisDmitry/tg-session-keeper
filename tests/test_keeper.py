@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator, Tuple
 
 import pytest
 from telethon import TelegramClient
@@ -44,6 +44,20 @@ async def test_properties(keeper: Keeper):
     assert keeper.test_mode is TEST_MODE
 
 
+async def test_add__login_add_code_and_password(
+    keeper: Keeper, client_with_session: TelegramClient, dc: Tuple[int, str, int]
+):
+    dc_id, _, __ = dc
+    phone = client_with_session.session.phone
+    await keeper.add(phone)
+    assert keeper._client_for_login
+    await keeper.login_add_code_and_password(str(dc_id) * 6)
+    assert not keeper._client_for_login
+    assert len(keeper._clients) == 2
+    assert len(keeper._storage.sessions) == 2
+    assert keeper._clients[1].is_connected()
+
+
 async def test_remove(keeper: Keeper):
     await keeper.remove(0)
     assert len(keeper._storage.sessions) == 0
@@ -60,3 +74,9 @@ async def test_get(keeper: Keeper, api_id: int, api_hash: str):
     )
     msg = await keeper.get(0)
     assert msg
+
+
+async def test_start(keeper: Keeper):
+    await keeper.stop()
+    await keeper.start()
+    assert keeper.started

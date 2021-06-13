@@ -30,9 +30,6 @@ class Keeper:
         return self._test_mode
 
     async def add(self, phone: str) -> None:
-        """
-        TODO: tests
-        """
         self._client_for_login = client = TelegramClient(
             Session(),
             self._storage.api_id,
@@ -48,9 +45,6 @@ class Keeper:
     async def login_add_code_and_password(
         self, code: Union[str, int], password: Optional[str] = None
     ) -> None:
-        """
-        TODO: tests
-        """
         await self._client_for_login.sign_in(code=code, password=password)
         await self._storage.add_session(self._client_for_login.session)
         self._clients.append(self._client_for_login)

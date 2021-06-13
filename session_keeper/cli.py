@@ -195,7 +195,7 @@ class CLIApp:
             while True:
                 await self.process_command()
         except (SystemExit, KeyboardInterrupt):
-            await self.stop()
+            await self._keeper.stop()
         except Exception as e:
             print(e)
 

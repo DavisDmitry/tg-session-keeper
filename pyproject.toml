@@ -34,7 +34,6 @@ pytest-cov = "^2.12.0"
 session-keeper = "session_keeper:CLIKeeper.run"
 
 [tool.black]
-line-length = 79
 target-version = ["py37"]
 
 [tool.isort]

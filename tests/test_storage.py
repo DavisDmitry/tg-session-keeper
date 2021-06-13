@@ -19,9 +19,7 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture
-async def storage(
-    temp_file: str, api_id: int, api_hash: str
-) -> EncryptedJsonStorage:
+async def storage(temp_file: str, api_id: int, api_hash: str) -> EncryptedJsonStorage:
     storage = EncryptedJsonStorage(PASSWORD, filename=temp_file)
     await storage.setup(api_id, api_hash)
     return storage
@@ -85,8 +83,6 @@ async def test_mismatched_version_error(storage_file: str):
 
 
 async def test_invalid_password(storage: EncryptedJsonStorage):
-    storage2 = EncryptedJsonStorage(
-        "invalid password", filename=storage.filename
-    )
+    storage2 = EncryptedJsonStorage("invalid password", filename=storage.filename)
     with pytest.raises(InvalidPassword):
         await storage2.start()

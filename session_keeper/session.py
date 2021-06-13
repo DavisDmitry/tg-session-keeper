@@ -46,8 +46,7 @@ class KeeperSession(Session):
         super().__init__()
 
         self._dc_id, self._server_address, self._port, auth_key = [
-            kwargs.get(key)
-            for key in ("dc_id", "server_address", "port", "auth_key")
+            kwargs.get(key) for key in ("dc_id", "server_address", "port", "auth_key")
         ]
         self._auth_key = AuthKey(self._decode_auth_key(auth_key))
 

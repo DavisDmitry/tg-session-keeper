@@ -48,9 +48,7 @@ class EncryptedJsonStorage(AbstractStorage):
         from cryptography.fernet import Fernet
 
         if isinstance(password, str):
-            password = self.transform_password(
-                password, hash_salt, hash_iterates
-            )
+            password = self.transform_password(password, hash_salt, hash_iterates)
         self._fernet = Fernet(password)
 
     @property
@@ -106,7 +104,7 @@ class EncryptedJsonStorage(AbstractStorage):
         try:
             data = self._fernet.decrypt(data)
         except InvalidToken:
-            raise exc.InvalidPassword
+            raise exc.InvalidPassword("You entered an invalid password.")
 
         data = b64.urlsafe_b64decode(data)
         await self._from_json(data.decode())
@@ -128,9 +126,7 @@ class EncryptedJsonStorage(AbstractStorage):
                 raise exc.StorageNotFound(f"File {self.filename} is empty.")
             if version != self._version:
                 raise exc.MismatchedVersionError(
-                    "The version of the file "
-                    "does not match the version "
-                    "of the storage."
+                    "The version of the file does not match the version of the storage."
                 )
             await self._decrypt_sessions(data)
 

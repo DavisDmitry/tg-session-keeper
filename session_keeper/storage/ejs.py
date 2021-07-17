@@ -7,7 +7,6 @@ from ..session import KeeperSession, Session
 from . import exceptions as exc
 from .abstract import AbstractStorage
 
-FILENAME = "sessions.tgsk"
 CURRENT_VERSION = b"1"
 PASS_HASH_SALT = b""
 PASS_HASH_ITERATES = 8
@@ -17,8 +16,8 @@ class EncryptedJsonStorage(AbstractStorage):
     def __init__(
         self,
         password: Union[bytes, str],
+        filename: str,
         *,
-        filename: str = FILENAME,
         version: Union[bytes, int] = CURRENT_VERSION,
     ):
         super().__init__()

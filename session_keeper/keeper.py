@@ -3,8 +3,8 @@ from typing import List, Optional, Union
 from telethon import TelegramClient
 from telethon.tl.types import Message
 
+from . import storage
 from .session import Session
-from .storage import EncryptedJsonStorage
 from .version import __version__ as keeper_version
 
 INDEX_ERROR_NON_EXISTENT_SESSION = IndexError("There is no session with this number.")
@@ -15,10 +15,8 @@ class Keeper:
     _clients: List[TelegramClient]
     _client_for_login: Optional[TelegramClient]
 
-    def __init__(
-        self, password: str, *, filename: str = "sessions.tgsk", test_mode: bool = False
-    ):
-        self._storage = EncryptedJsonStorage(password, filename=filename)
+    def __init__(self, storage: storage.AbstractStorage, test_mode: bool = False):
+        self._storage = storage
         self._test_mode = test_mode
         self._clients = []
         self._started = False
@@ -97,3 +95,12 @@ class Keeper:
             await client.disconnect()
         await self._storage.stop()
         self._started = False
+
+    @classmethod
+    def init_with_ejs(
+        cls, password: Union[bytes, str], filename: str, test_mode: bool = False
+    ) -> "Keeper":
+        return cls(
+            storage.EncryptedJsonStorage(password, filename),
+            test_mode=test_mode,
+        )

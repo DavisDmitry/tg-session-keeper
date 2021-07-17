@@ -43,9 +43,11 @@ def run() -> None:
 
 class CLIApp:
     def __init__(
-        self, password: str, *, filename: str = "session.tgsk", test_mode: bool = False
+        self, password: str, *, filename: str = "sessions.tgsk", test_mode: bool = False
     ):
-        self._keeper = Keeper(password, filename=filename, test_mode=test_mode)
+        self._keeper = Keeper.init_with_ejs(
+            password, filename=filename, test_mode=test_mode
+        )
 
     @staticmethod
     def _print_help() -> None:

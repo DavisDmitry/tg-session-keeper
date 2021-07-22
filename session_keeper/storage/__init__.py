@@ -6,3 +6,4 @@ from .exceptions import (
     StorageNotFound,
     StorageSettedError,
 )
+from .memory import MemoryStorage

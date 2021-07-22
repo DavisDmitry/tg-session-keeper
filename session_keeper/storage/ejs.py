@@ -1,18 +1,18 @@
 import base64 as b64
 import json
 import os
-from typing import List, Union
+from typing import Union
 
-from ..session import KeeperSession, Session
+from ..session import KeeperSession
 from . import exceptions as exc
-from .abstract import AbstractStorage
+from .memory import MemoryStorage
 
 CURRENT_VERSION = b"1"
 PASS_HASH_SALT = b""
 PASS_HASH_ITERATES = 8
 
 
-class EncryptedJsonStorage(AbstractStorage):
+class EncryptedJsonStorage(MemoryStorage):
     def __init__(
         self,
         password: Union[bytes, str],
@@ -24,7 +24,6 @@ class EncryptedJsonStorage(AbstractStorage):
         self._filename = filename
         self._version = bytes(version)
         self._set_fernet(password)
-        self._sessions = []
 
     @staticmethod
     def transform_password(
@@ -53,24 +52,6 @@ class EncryptedJsonStorage(AbstractStorage):
     @property
     def filename(self) -> str:
         return self._filename
-
-    @property
-    def api_id(self) -> int:
-        return self._api_id
-
-    @property
-    def api_hash(self) -> str:
-        return self._api_hash
-
-    async def add_session(self, session: Session) -> None:
-        self._sessions.append(session)
-
-    async def remove_session(self, number: int) -> None:
-        self._sessions.pop(number)
-
-    @property
-    def sessions(self) -> List[Session]:
-        return self._sessions
 
     def _as_dict(self) -> dict:
         sessions = []
@@ -109,10 +90,7 @@ class EncryptedJsonStorage(AbstractStorage):
         await self._from_json(data.decode())
 
     async def setup(self, api_id: int, api_hash: str) -> None:
-        if self._api_id and self._api_hash:
-            raise exc.StorageSettedError("Storage already has been setted.")
-        self._api_id = api_id
-        self._api_hash = api_hash
+        await super().setup(api_id, api_hash)
         await self.save()
 
     async def start(self):

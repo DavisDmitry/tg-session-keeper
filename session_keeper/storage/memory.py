@@ -1,8 +1,8 @@
 from typing import List
 
-from ..session import Session
 from . import exceptions as exc
 from .abstract import AbstractStorage
+from ..session import Session
 
 
 class MemoryStorage(AbstractStorage):

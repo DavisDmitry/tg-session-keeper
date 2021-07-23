@@ -3,6 +3,7 @@ from telethon import TelegramClient
 
 from session_keeper.storage import MemoryStorage, StorageSettedError
 
+
 pytestmark = pytest.mark.asyncio
 
 

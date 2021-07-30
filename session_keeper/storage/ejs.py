@@ -3,6 +3,8 @@ import json
 import os
 from typing import Optional, Union
 
+from cryptography.fernet import InvalidToken
+
 from ..session import KeeperSession
 from . import exceptions as exc
 from .memory import MemoryStorage
@@ -14,12 +16,11 @@ PASS_HASH_ITERATES = 8
 
 class MemoryEncryptedJsonStorage(MemoryStorage):
     def __init__(
-        self, password: Union[bytes, str], *, unencrytped_data: Optional[bytes] = None
+        self, password: Union[bytes, str], *, encrypted_data: Optional[bytes] = None
     ):
         super().__init__()
         self._set_fernet(password)
-        self._unencrypted_data = unencrytped_data
-        self._encrypted_data = None
+        self._encrypted_data = encrypted_data
 
     @property
     def encrypted_data(self) -> bytes:
@@ -76,8 +77,6 @@ class MemoryEncryptedJsonStorage(MemoryStorage):
         return self._fernet.encrypt(data)
 
     async def _decrypt_sessions(self, data: bytes) -> None:
-        from cryptography.fernet import InvalidToken
-
         try:
             data = self._fernet.decrypt(data)
         except InvalidToken:
@@ -94,7 +93,7 @@ class MemoryEncryptedJsonStorage(MemoryStorage):
         await self.save()
 
     async def start(self) -> None:
-        data = self._unencrypted_data
+        data = self._encrypted_data
         if data:
             version, data = data[:1], data[1:]
             if version != CURRENT_VERSION:
@@ -120,7 +119,7 @@ class FileEncryptedJsonStorage(MemoryEncryptedJsonStorage):
         if not os.path.isfile(self.filename):
             raise exc.StorageNotFound(f"File {self.filename} does not exist.")
         with open(self.filename, "rb") as file:
-            data = self._unencrypted_data = file.read()
+            data = self._encrypted_data = file.read()
             if not data:
                 raise exc.StorageNotFound(f"File {self.filename} is empty.")
             await (super()).start()

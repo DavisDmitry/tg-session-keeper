@@ -45,7 +45,7 @@ class CLIApp:
     def __init__(
         self, password: str, *, filename: str = "sessions.tgsk", test_mode: bool = False
     ):
-        self._keeper = Keeper.init_with_file_ejs(
+        self._keeper = Keeper.init_with_ejs(
             password, filename=filename, test_mode=test_mode
         )
 

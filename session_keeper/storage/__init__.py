@@ -1,5 +1,5 @@
 from .abstract import AbstractStorage
-from .ejs import FileEncryptedJsonStorage, MemoryEncryptedJsonStorage
+from .ejs import EncryptedJsonStorage
 from .exceptions import (
     InvalidPassword,
     MismatchedVersionError,

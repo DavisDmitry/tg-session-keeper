@@ -97,10 +97,10 @@ class Keeper:
         self._started = False
 
     @classmethod
-    def init_with_file_ejs(
+    def init_with_ejs(
         cls, password: Union[bytes, str], filename: str, test_mode: bool = False
     ) -> "Keeper":
         return cls(
-            storage.FileEncryptedJsonStorage(password, filename),
+            storage.EncryptedJsonStorage(password, filename),
             test_mode=test_mode,
         )

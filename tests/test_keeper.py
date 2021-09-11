@@ -20,7 +20,7 @@ async def keeper(
     temp_file: str,
     client_with_session: TelegramClient,
 ) -> Iterator[Keeper]:
-    keeper = Keeper.init_with_file_ejs(PASSWORD, temp_file, test_mode=TEST_MODE)
+    keeper = Keeper.init_with_ejs(PASSWORD, temp_file, test_mode=TEST_MODE)
     await keeper.setup_storage(api_id, api_hash)
     await keeper.start()
     await keeper._storage.add_session(client_with_session.session)

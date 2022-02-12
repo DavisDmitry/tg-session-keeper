@@ -27,6 +27,7 @@ black = "^22.1.0"
 isort = "^5.10.1"
 mypy = "^0.931"
 pylint = "^2.12.2"
+types-tabulate = "^0.8.5"
 
 [tool.poetry.scripts]
 session-keeper = "session_keeper:CLIKeeper.run"

@@ -1,25 +1,22 @@
+import argparse
 import asyncio
 import getpass
 import sys
-from argparse import ArgumentParser, Namespace
 from typing import Optional
 
-from tabulate import tabulate
-from telethon import TelegramClient
+import tabulate
+import telethon
 
-from session_keeper.storage import StorageNotFound
+from session_keeper import keeper, session, storage
 
-from .keeper import Keeper
-from .session import Session
-from .storage import InvalidPassword, MismatchedVersionError
 from .version import __version__ as keeper_version
 
 
-def _parse_args() -> Namespace:
-    parser = ArgumentParser()
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "--filename",
-        type=Optional[str],
+        type=str,
         required=False,
         help="path to a sessions file",
     )
@@ -45,7 +42,7 @@ class CLIApp:
     def __init__(
         self, password: str, *, filename: str = "sessions.tgsk", test_mode: bool = False
     ):
-        self._keeper = Keeper.init_with_ejs(
+        self._keeper = keeper.Keeper.init_with_ejs(
             password, filename=filename, test_mode=test_mode
         )
 
@@ -75,7 +72,7 @@ class CLIApp:
             number = params[1]
         if len(params) > 2:
             cls._print_incorrect_command()
-            return
+            return None
 
         while True:
             if number is None:
@@ -89,18 +86,18 @@ class CLIApp:
                 number = None
 
     async def add(self) -> None:
-        client = TelegramClient(
-            Session(),
-            self._storage.api_id,
-            self._storage.api_hash,
+        client = telethon.TelegramClient(
+            session.Session(),
+            self._keeper.storage.api_id,
+            self._keeper.storage.api_hash,
             app_version=f"Session Keeper {keeper_version}",
         )
-        if self.test_mode:
+        if self._keeper.test_mode:
             client.session.set_dc(2, "149.154.167.40", 443)
         await client.start()
 
-        await self._storage.add_session(client.session)
-        self._clients.append(client)
+        await self._keeper.storage.add_session(client.session)
+        self._keeper._clients.append(client)
         print("Session added to storage.")
 
     async def remove(self, command: str) -> None:
@@ -120,7 +117,7 @@ class CLIApp:
             for number, session in enumerate(await self._keeper.list())
         ]
         print(
-            tabulate(
+            tabulate.tabulate(
                 table,
                 headers=("№", "Telegram ID", "Phone", "Mention"),
                 tablefmt="pretty",
@@ -138,7 +135,7 @@ class CLIApp:
             print(e)
             return
         print(
-            tabulate(
+            tabulate.tabulate(
                 (
                     (message.message,),
                     (message.date.strftime("%H:%M %d.%m.%Y UTC"),),
@@ -151,9 +148,8 @@ class CLIApp:
     async def setup_storage(self) -> None:
         api_id = None
         while not api_id:
-            api_id = input("Please enter api id: ")
             try:
-                api_id = int(api_id)
+                api_id = int(input("Please enter api id: "))
             except ValueError:
                 print("You entered an invalid value.")
         api_hash = getpass.getpass("Please enter api hash: ")
@@ -185,9 +181,9 @@ class CLIApp:
     async def run(self) -> None:
         try:
             await self._keeper.start()
-        except StorageNotFound:
+        except storage.StorageNotFound:
             await self.setup_storage()
-        except (InvalidPassword, MismatchedVersionError) as e:
+        except (storage.InvalidPassword, storage.MismatchedVersionError) as e:
             print(e)
             return
 

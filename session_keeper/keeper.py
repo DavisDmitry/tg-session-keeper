@@ -1,21 +1,21 @@
 from typing import List, Optional, Union
 
-from telethon import TelegramClient
-from telethon.tl.types import Message
+import telethon
+from telethon.tl import types as tl_types
 
-from . import storage
-from .session import Session
-from .version import __version__ as keeper_version
+from session_keeper import session
+from session_keeper import storage as _storage
+from session_keeper.version import __version__ as keeper_version
 
 INDEX_ERROR_NON_EXISTENT_SESSION = IndexError("There is no session with this number.")
 INDEX_ERROR_MISSING_MESSAGES = IndexError("Messages from Telegram are missing.")
 
 
 class Keeper:
-    _clients: List[TelegramClient]
-    _client_for_login: Optional[TelegramClient]
+    _clients: List[telethon.TelegramClient]
+    _client_for_login: Optional[telethon.TelegramClient]
 
-    def __init__(self, storage: storage.AbstractStorage, test_mode: bool = False):
+    def __init__(self, storage: _storage.AbstractStorage, test_mode: bool = False):
         self._storage = storage
         self._test_mode = test_mode
         self._clients = []
@@ -27,12 +27,16 @@ class Keeper:
         return self._started
 
     @property
+    def storage(self) -> _storage.AbstractStorage:
+        return self._storage
+
+    @property
     def test_mode(self) -> bool:
         return self._test_mode
 
     async def add(self, phone: str) -> None:
-        self._client_for_login = client = TelegramClient(
-            Session(),
+        self._client_for_login = client = telethon.TelegramClient(  # type: ignore
+            session.Session(),
             self._storage.api_id,
             self._storage.api_hash,
             app_version=f"Session Keeper {keeper_version}",
@@ -46,8 +50,11 @@ class Keeper:
     async def login_add_code_and_password(
         self, code: Union[str, int], password: Optional[str] = None
     ) -> None:
-        await self._client_for_login.sign_in(code=code, password=password)
-        await self._storage.add_session(self._client_for_login.session)
+        await self._client_for_login.sign_in(  # type: ignore
+            code=code,
+            password=password,
+        )
+        await self._storage.add_session(self._client_for_login.session)  # type: ignore
         self._clients.append(self._client_for_login)
         self._client_for_login = None
 
@@ -59,10 +66,10 @@ class Keeper:
         await self._storage.remove_session(number)
         await client.log_out()
 
-    async def list(self) -> List[Session]:
+    async def list(self) -> List[session.Session]:
         return self._storage.sessions
 
-    async def get(self, number: int) -> Message:
+    async def get(self, number: int) -> tl_types.Message:
         try:
             client = self._clients[number]
         except IndexError:
@@ -81,7 +88,7 @@ class Keeper:
         await storage.start()
 
         for session in storage.sessions:
-            client = TelegramClient(session, storage.api_id, storage.api_hash)
+            client = telethon.TelegramClient(session, storage.api_id, storage.api_hash)
             await client.connect()
             await client.get_me()
             self._clients.append(client)
@@ -101,6 +108,6 @@ class Keeper:
         cls, password: Union[bytes, str], filename: str, test_mode: bool = False
     ) -> "Keeper":
         return cls(
-            storage.EncryptedJsonStorage(password, filename),
+            _storage.EncryptedJsonStorage(password, filename),
             test_mode=test_mode,
         )

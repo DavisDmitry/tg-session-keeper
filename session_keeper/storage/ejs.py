@@ -3,16 +3,19 @@ import json
 import os
 from typing import Union
 
-from ..session import KeeperSession
-from . import exceptions as exc
-from .memory import MemoryStorage
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf import pbkdf2
+
+from session_keeper import session as _session
+from session_keeper.storage import exceptions as exc
+from session_keeper.storage import memory
 
 CURRENT_VERSION = b"1"
 PASS_HASH_SALT = b""
 PASS_HASH_ITERATES = 8
 
 
-class EncryptedJsonStorage(MemoryStorage):
+class EncryptedJsonStorage(memory.MemoryStorage):
     def __init__(
         self,
         password: Union[bytes, str],
@@ -29,13 +32,8 @@ class EncryptedJsonStorage(MemoryStorage):
     def transform_password(
         password: str, hash_salt: bytes, hash_iterates: int
     ) -> bytes:
-        password = password.encode()
-
-        from cryptography.hazmat.primitives import hashes
-        from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
-        kdf = PBKDF2HMAC(hashes.SHA256(), 32, hash_salt, hash_iterates)
-        return b64.urlsafe_b64encode(kdf.derive(password))
+        kdf = pbkdf2.PBKDF2HMAC(hashes.SHA256(), 32, hash_salt, hash_iterates)
+        return b64.urlsafe_b64encode(kdf.derive(password.encode()))
 
     def _set_fernet(
         self,
@@ -67,11 +65,11 @@ class EncryptedJsonStorage(MemoryStorage):
         return json.dumps(self._as_dict())
 
     async def _from_json(self, data: str) -> None:
-        data = json.loads(data)
-        self._api_id = data["api_id"]
-        self._api_hash = data["api_hash"]
-        for session in data.get("sessions"):
-            await self.add_session(KeeperSession(**session))
+        data_dct = json.loads(data)
+        self._api_id = data_dct["api_id"]
+        self._api_hash = data_dct["api_hash"]
+        for session in data_dct.get("sessions"):
+            await self.add_session(_session.KeeperSession(**session))
 
     def _encrypt_sessions(self) -> bytes:
         data = self._as_json().encode()

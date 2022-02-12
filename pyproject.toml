@@ -25,6 +25,8 @@ Telethon = "^1.24.0"
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
 isort = "^5.10.1"
+mypy = "^0.931"
+pylint = "^2.12.2"
 
 [tool.poetry.scripts]
 session-keeper = "session_keeper:CLIKeeper.run"
@@ -36,6 +38,12 @@ target-version = ["py37"]
 profile = "black"
 src_paths = ["session_keeper"]
 multi_line_output = 3
+
+[tool.mypy]
+ignore_missing_imports = "True"
+
+[tool.pylint.message_control]
+disable = ["C0114", "C0115", "C0116"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

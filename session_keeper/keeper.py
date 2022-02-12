@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 import telethon
 from telethon.tl import types as tl_types
 
-from session_keeper import session
+from session_keeper import session as _session
 from session_keeper import storage as _storage
 from session_keeper.version import __version__ as keeper_version
 
@@ -36,7 +36,7 @@ class Keeper:
 
     async def add(self, phone: str) -> None:
         self._client_for_login = client = telethon.TelegramClient(  # type: ignore
-            session.Session(),
+            _session.Session(),
             self._storage.api_id,
             self._storage.api_hash,
             app_version=f"Session Keeper {keeper_version}",
@@ -61,23 +61,23 @@ class Keeper:
     async def remove(self, number: int) -> None:
         try:
             client = self._clients.pop(number)
-        except IndexError:
-            raise INDEX_ERROR_NON_EXISTENT_SESSION
+        except IndexError as error:
+            raise INDEX_ERROR_NON_EXISTENT_SESSION from error
         await self._storage.remove_session(number)
         await client.log_out()
 
-    async def list(self) -> List[session.Session]:
+    async def list(self) -> List[_session.Session]:
         return self._storage.sessions
 
     async def get(self, number: int) -> tl_types.Message:
         try:
             client = self._clients[number]
-        except IndexError:
-            raise INDEX_ERROR_NON_EXISTENT_SESSION
+        except IndexError as error:
+            raise INDEX_ERROR_NON_EXISTENT_SESSION from error
         try:
             return (await client.get_messages(777000))[0]
-        except IndexError:
-            raise INDEX_ERROR_MISSING_MESSAGES
+        except IndexError as error:
+            raise INDEX_ERROR_MISSING_MESSAGES from error
 
     async def setup_storage(self, api_id: int, api_hash: str) -> None:
         await self._storage.setup(api_id, api_hash)

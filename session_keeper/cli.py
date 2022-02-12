@@ -97,7 +97,7 @@ class CLIApp:
         await client.start()
 
         await self._keeper.storage.add_session(client.session)
-        self._keeper._clients.append(client)
+        self._keeper._clients.append(client)  # pylint: disable=W0212
         print("Session added to storage.")
 
     async def remove(self, command: str) -> None:
@@ -106,8 +106,8 @@ class CLIApp:
             return
         try:
             await self._keeper.remove(number)
-        except IndexError as e:
-            print(e)
+        except IndexError as error:
+            print(error)
             return
         print("Session removed from storage.")
 
@@ -131,8 +131,8 @@ class CLIApp:
 
         try:
             message = await self._keeper.get(number)
-        except IndexError as e:
-            print(e)
+        except IndexError as error:
+            print(error)
             return
         print(
             tabulate.tabulate(
@@ -183,8 +183,8 @@ class CLIApp:
             await self._keeper.start()
         except storage.StorageNotFound:
             await self.setup_storage()
-        except (storage.InvalidPassword, storage.MismatchedVersionError) as e:
-            print(e)
+        except (storage.InvalidPassword, storage.MismatchedVersionError) as error:
+            print(error)
             return
 
         self._print_help()
@@ -194,8 +194,8 @@ class CLIApp:
                 await self.process_command()
         except (SystemExit, KeyboardInterrupt):
             await self._keeper.stop()
-        except Exception as e:
-            print(e)
+        except Exception as error:  # pylint: disable=W0703
+            print(error)
 
 
 if __name__ == "__main__":

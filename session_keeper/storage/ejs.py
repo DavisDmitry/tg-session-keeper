@@ -3,6 +3,7 @@ import json
 import os
 from typing import Union
 
+from cryptography import fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf import pbkdf2
 
@@ -41,11 +42,9 @@ class EncryptedJsonStorage(memory.MemoryStorage):
         hash_salt: bytes = PASS_HASH_SALT,
         hash_iterates: int = PASS_HASH_ITERATES,
     ) -> None:
-        from cryptography.fernet import Fernet
-
         if isinstance(password, str):
             password = self.transform_password(password, hash_salt, hash_iterates)
-        self._fernet = Fernet(password)
+        self._fernet = fernet.Fernet(password)
 
     @property
     def filename(self) -> str:
@@ -77,12 +76,10 @@ class EncryptedJsonStorage(memory.MemoryStorage):
         return self._fernet.encrypt(data)
 
     async def _decrypt_sessions(self, data: bytes) -> None:
-        from cryptography.fernet import InvalidToken
-
         try:
             data = self._fernet.decrypt(data)
-        except InvalidToken:
-            raise exc.InvalidPassword("You entered an invalid password.")
+        except fernet.InvalidToken as error:
+            raise exc.InvalidPassword("You entered an invalid password.") from error
 
         data = b64.urlsafe_b64decode(data)
         await self._from_json(data.decode())

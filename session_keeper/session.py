@@ -1,15 +1,16 @@
 import base64 as b64
 
-from telethon.sessions import MemorySession
+from telethon import crypto, sessions
 
 
-class Session(MemorySession):
+class Session(sessions.MemorySession):
     @property
     def entities(self) -> tuple:
         return list(self._entities)[0]
 
     @property
     def id(self) -> int:
+        # pylint: disable=C0103
         return self.entities[0]
 
     @property
@@ -41,14 +42,12 @@ class Session(MemorySession):
 
 class KeeperSession(Session):
     def __init__(self, **kwargs):
-        from telethon.crypto import AuthKey
-
         super().__init__()
 
         self._dc_id, self._server_address, self._port, auth_key = [
             kwargs.get(key) for key in ("dc_id", "server_address", "port", "auth_key")
         ]
-        self._auth_key = AuthKey(self._decode_auth_key(auth_key))
+        self._auth_key = crypto.AuthKey(self._decode_auth_key(auth_key))
 
     @staticmethod
     def _decode_auth_key(encoded_key: str) -> bytes:

@@ -1,10 +1,11 @@
 .*
 !.github
 !.gitignore
-!.flake8
+!.darglint
 __pycache__
 *.egg-info
 venv
 *.tgsk
+!tests/e_json.tgsk
 dist
 build

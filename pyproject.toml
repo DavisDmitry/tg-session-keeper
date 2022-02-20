@@ -19,8 +19,9 @@ packages = [{ include = "session_keeper" }]
 [tool.poetry.dependencies]
 python = "^3.7"
 cryptography = "^36.0.1"
+Pyrogram = "^1.4.7"
+prompt-toolkit = "^3.0.28"
 tabulate = "^0.8.9"
-Telethon = "^1.24.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -28,6 +29,10 @@ isort = "^5.10.1"
 mypy = "^0.931"
 pylint = "^2.12.2"
 types-tabulate = "^0.8.5"
+darglint = "^1.8.1"
+pytest = "^7.0.1"
+pytest-asyncio = "^0.18.1"
+pytest-cov = "^3.0.0"
 
 [tool.poetry.scripts]
 session-keeper = "session_keeper:CLIKeeper.run"

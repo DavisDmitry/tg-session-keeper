@@ -1,0 +1,3 @@
+[darglint]
+ignore = DAR101,DAR201,DAR402
+docstring_style = google

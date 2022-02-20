@@ -1,6 +1,3 @@
-from . import version
-from .cli import CLIApp
-from .keeper import Keeper
-from .storage import AbstractStorage, EncryptedJsonStorage, MemoryStorage
+from session_keeper import _version
 
-__version__ = version.__version__
+__version__ = _version.__version__

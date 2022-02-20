@@ -2,36 +2,35 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-  tests:
-
+  build:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.7'
-    - name: Install poetry
-      run: |
-        python -m pip install --upgrade pip
-        pip install poetry
-    - name: Install project requirements
-      run: poetry install
-    - name: Run black
-      run: poetry run black --check --diff .
-    - name: Run isort
-      run: poetry run isort --check --diff .
-    - name: Run tests
-      env:
-        API_ID: ${{ secrets.API_ID }}
-        API_HASH: ${{ secrets.API_HASH }}
-        DC_ID: ${{ secrets.DC_ID }}
-        DC_ADDRESS: ${{ secrets.DC_ADDRESS }}
-        DC_PORT: ${{ secrets.DC_PORT }}
-      run: poetry run pytest --cov=session_keeper --cov-report=term-missing
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{  matrix.python-version  }}
+      - run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ hashFiles('poetry.lock') }}
+      - if: steps.cache.output.cache-hit != 'true'
+        run: poetry install
+      - name: Test
+        run: |
+          make test
+          poetry run coverage xml
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

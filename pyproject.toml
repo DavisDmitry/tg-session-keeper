@@ -19,7 +19,7 @@ packages = [{ include = "session_keeper" }]
 [tool.poetry.dependencies]
 python = "^3.7"
 cryptography = "^36.0.1"
-Pyrogram = "^1.4.7"
+Pyrogram = "^1.4.11"
 prompt-toolkit = "^3.0.28"
 tabulate = "^0.8.9"
 
